@@ -1,0 +1,27 @@
+package main;
+
+class Test{
+	
+	
+	public static void main(String[] args) {
+
+
+		System.out.println(div(4,0));
+
+		
+	
+		
+	
+	}
+	public static double div(double a,double b) {
+		
+		assert b==0:"Can't divide by zero";
+		double result = a/b;
+		
+		
+		
+		
+		
+		return result;
+	}
+}

@@ -1,0 +1,218 @@
+package main;
+public final class ImageProcessing {
+	
+	
+    
+	/**
+     * Returns red component from given packed color.
+     * @param rgb : a 32-bits RGB color
+     * @return an integer,  between 0 and 255
+     * @see #getGreen
+     * @see #getBlue
+     * @see #getRGB(int, int, int)
+     */
+    public static int getRed(int rgb) {
+    	// 0b11110000_00001111_01010101 -> 000000000_00000000_11110000
+    	//                                 00000000_00000000_11111111
+    	
+    	
+    	int red = (rgb >> 16) &0b11111111;
+    	
+    	
+    	
+    	return red; 
+    }
+
+    /**
+     * Returns green component from given packed color.
+     * @param rgb : a 32-bits RGB color
+     * @return an integer between 0 and 255
+     * @see #getRed
+     * @see #getBlue
+     * @see #getRGB(int, int, int)
+     */
+    public static int getGreen(int rgb) {
+    	int green = (rgb>>8)&0b11111111;
+    	
+
+    	
+    	return green; 
+    }
+
+    /**
+     * Returns blue component from given packed color.
+     * @param rgb : a 32-bits RGB color
+     * @return an integer between 0 and 255
+     * @see #getRed
+     * @see #getGreen
+     * @see #getRGB(int, int, int)
+     */
+    public static int getBlue(int rgb) {
+    		int blue = rgb & 0b11111111;
+
+        return blue;
+    }
+
+   
+    /**
+     * Returns the average of red, green and blue components from given packed color.
+     * @param rgb : 32-bits RGB color
+     * @return a double between 0 and 255
+     * @see #getRed
+     * @see #getGreen
+     * @see #getBlue
+     * @see #getRGB(int)
+     */
+    public static double getGray(int rgb) {
+    	
+    		int red = getRed(rgb);
+    		int green = getGreen(rgb);
+    		int blue = getBlue(rgb);
+    		
+    		double gray = (red+green+blue)/3d;
+    		return gray;
+    }
+
+    /**
+     * Returns packed RGB components from given red, green and blue components.
+     * @param red : an integer 
+     * @param green : an integer 
+     * @param blue : an integer
+     * @return a 32-bits RGB color
+     * @see #getRed
+     * @see #getGreen
+     * @see #getBlue
+     */
+    public static int getRGB(int red, int green, int blue) {
+    	
+    		if(red < 0) {
+    			red = 0;
+    		}
+    		if(blue < 0) {
+    			blue = 0;
+    		}
+    		if(green < 0) {
+    			green = 0;
+    		}
+    		
+    		if(red > 255) {
+    			red = 255;
+    		}
+    		if(blue > 255) {
+    			blue = 255;
+    		}
+    		if(green >255) {
+    			green = 255;
+    		}
+    		
+    		
+    		int redPos = red << 16; // 0b000010100_00000000_00000000
+		int greenPos = green << 8;
+		int rgb = redPos | greenPos | blue;
+
+    	
+    	
+    	return rgb; 
+    }
+
+    /**
+     * Returns packed RGB components from given gray-scale value.
+     * @param gray : an integer 
+     * @return a 32-bits RGB color
+     * @see #getGray
+     */
+    public static int getRGB(double gray) {
+    	
+    		int red=(int) gray; 
+    		int green=(int) gray; 
+    		int blue = (int) gray;
+    		
+    		int redPos = red << 16; // 0b000010100_00000000_00000000
+    		int greenPos = green << 8;
+    		int rgb1 = redPos | greenPos | blue;
+    		
+    	
+    	
+    	return rgb1; 
+    }
+
+    /**
+     * Converts packed RGB image to gray-scale image.
+     * @param image : a HxW integer array
+     * @return a HxW double array
+     * @see #encode
+     * @see #getGray
+     */
+    public static double[][] toGray(int[][] image) {
+
+    		assert image != null: "is empty";
+    		double[][] nImage = new double[image.length][image[0].length];
+    	
+    		for(int i = 0; i < image.length;i++) {
+    			for(int j = 0; j < image[0].length;j++) {
+    				nImage[i][j] = getGray(image[i][j]);
+    			}
+    		}
+    		
+    		      return nImage;
+    }
+
+    /**
+     * Converts gray-scale image to packed RGB image.
+     * @param channels : a HxW double array
+     * @return a HxW integer array
+     * @see #decode
+     * @see #getRGB(double)
+     */
+    public static int[][] toRGB(double[][] gray) {
+
+    	
+    	int[][] nImage = new int[gray.length][gray[0].length];
+    	
+    	for(int i = 0; i < gray.length;i++) {
+    		for(int j = 0; j < gray[0].length;j++) {
+    			nImage[i][j] = getRGB(gray[i][j]);
+    		}
+    	}
+    	
+    	
+    	
+    	
+    	
+    	return nImage;
+    }
+
+    
+    /**
+     * Convert an arbitrary 2D double matrix into a 2D integer matrix 
+     * which can be used as RGB image
+     * @param matrix : the arbitrary 2D double array to convert into integer
+     * @param min : a double, the minimum value the matrix could theoretically contains
+     * @param max : a double, the maximum value the matrix could theoretically contains
+     * @return an 2D integer array, containing a RGB mapping of the matrix 
+     */
+    public static int[][] matrixToRGBImage(double[][] matrix, double min, double max) {
+    	
+    		int[][] matrixRGB = new int[matrix.length][matrix[0].length]; 
+    		
+    		for(int i =0 ; i < matrix.length;i++) {
+    			for(int j = 0; j < matrix[0].length;j++) {
+    			double gray = ((matrix[i][j] - min) / (max - min)) * 255;
+    				
+    			int red=(int) gray; 
+    	    		int green=(int) gray; 
+    	    		int blue = (int) gray;
+    	    		
+    	    		int redPos = red << 16; // 0b000010100_00000000_00000000
+    	    		int greenPos = green << 8;
+    	    		int rgb1 = redPos | greenPos | blue;
+    	    		
+    			matrixRGB[i][j] = rgb1;
+    			}
+    		}
+    	
+    	
+    	
+    	return matrixRGB;
+    }
+}

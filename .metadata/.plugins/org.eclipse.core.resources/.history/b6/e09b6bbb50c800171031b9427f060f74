@@ -1,0 +1,132 @@
+	package main;
+
+public class SimilarityBasedSearch {
+
+	/**
+	 * Computes the mean value of a gray-scale image given as a 2D array 
+	 * @param image : a 2D double array, the gray-scale Image
+	 * @return a double value between 0 and 255 which is the mean value
+	 */
+	public static double mean(double[][] image) {
+		
+		
+		
+		double mean = 0;
+		for(int i = 0;i < image.length;i++) {
+			for(int j = 0;j < image[0].length;j++) {
+				mean+= image[i][j];
+			}
+		}
+		
+		mean = mean/(image.length*image[0].length);
+
+		return mean; 
+	}
+	
+	public static double windowMean(double[][] matrix,int row,int col,int width,int height) {
+		
+		double windowMean =0;
+		
+		
+		for(int i =0;i < width;i++) {
+			for(int j =0;j < height;j++) {
+				
+				windowMean += matrix[i+row][j+col];
+				
+				
+			}
+		}
+		
+		windowMean = windowMean/(width*height);
+		
+		
+		
+		return windowMean;
+	}
+	
+	
+
+
+	
+	/**
+	 * Computes the Normalized Cross Correlation of a gray-scale pattern if positioned
+	 * at the provided row, column-coordinate in a gray-scale image
+	 * @param row : a integer, the row-coordinate of the upper left corner of the pattern in the image.
+	 * @param column : a integer, the column-coordinate of the upper left corner of the pattern in the image.
+	 * @param pattern : an 2D array of doubles, the gray-scale pattern to find
+	 * @param image : an 2D array of double, the gray-scale image where to look for the pattern
+	 * @return a double, the Normalized Cross Correlation value at position (row, col) between the pattern and the part of
+	 * the base image that is covered by the pattern, if the pattern is shifted by x and y.
+	 * should return -1 if the denominator is 0
+	 */
+	public static double normalizedCrossCorrelation(int row, int col, double[][] pattern, double[][] image) {
+		
+		
+		
+		
+		
+		
+		double patternMean = mean(pattern);
+		double portionOfImageMean = windowMean(image,row,col,pattern.length,pattern[0].length);
+		double numerateur = 0;
+		double denominateurP1 = 0;
+		double denominateurP2 = 0;
+		double denominateur;
+	
+
+		
+		
+		
+		for(int i = 0; i < pattern.length;i++) {
+			for(int j =0;j < pattern[0].length;j++) {
+				numerateur += (image[i+row][j+col] - portionOfImageMean)*(pattern[i][j]-patternMean);
+				
+				denominateurP1 += (image[i+row][j+col]-portionOfImageMean)*(image[i+row][j+col]-portionOfImageMean);
+				denominateurP2 += (pattern[i][j]-patternMean)*(pattern[i][j]-patternMean);
+			}
+		}
+		
+		denominateur = Math.sqrt(denominateurP1*denominateurP2);
+		
+		
+		
+		if(denominateur!=0) {
+			return (numerateur/denominateur);
+		}else{
+			return -1;
+		}
+	}
+
+	
+	/**
+	 * Compute the similarityMatrix between a gray-scale image and a gray-scale pattern
+	 * @param pattern : an 2D array of doubles, the gray-scale pattern to find
+	 * @param image : an 2D array of doubles, the gray-scale image where to look for the pattern
+	 * @return a 2D array of doubles, containing for each pixel of a original gray-scale image, 
+	 * the similarity (normalized cross-correlation) between the image's window and the pattern
+	 * placed over this pixel (upper-left corner)
+	 */
+	public static double[][] similarityMatrix(double[][] pattern, double[][] image) {
+		
+		int rowSimMatrix = image.length - pattern.length + 1;
+		int colSimMatrix = image[0].length - pattern[0].length + 1;
+		
+		
+		              
+		double[][] simMatrix = new double[rowSimMatrix][colSimMatrix];
+		
+		for(int i =0;i < rowSimMatrix;i++) {
+			for(int j =0;j < colSimMatrix;j++) {
+				
+					simMatrix[i][j] = normalizedCrossCorrelation(i, j, pattern,image);
+
+				
+			}
+		}
+		
+		
+		
+		return simMatrix; 
+	}
+
+}
